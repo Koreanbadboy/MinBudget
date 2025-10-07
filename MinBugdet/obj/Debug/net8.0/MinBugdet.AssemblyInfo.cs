@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MinBugdet")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ecf9593c6c2b703668115e7cd7ac086e6627dce2")]
 [assembly: System.Reflection.AssemblyProductAttribute("MinBugdet")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MinBugdet")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

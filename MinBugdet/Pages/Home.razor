@@ -2,6 +2,64 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<!-- Rubrik -->
+<p style="text-align: center; font-family: Arial;font-size: 48px;">MinBudget+</p>
 
-Welcome to your new app.
+<!-- Kvar denna månad box -->
+
+<div style="width: 400px; height: 200px; background-color: lightgreen; 
+            display: flex; flex-direction: column; justify-content: center; 
+            align-items: center;">
+    
+    <!-- Text överst -->
+    <p style="font-size: 32px; margin-top: 8px; margin: 0;">Kvar denna månad</p>
+
+    <!-- Text strax under -->
+    <p style="font-size: 32px; font-weight: bold; margin: 0;">@inputText kr</p> </div>
+
+<br>
+<!-- Inkomst box-->
+<div style="width: 400px; height: 200px; background-color: lightblue; 
+display: flex; flex-direction: column; justify-content: center; 
+align-items: center;">
+    
+<!-- Text överst -->
+<p style="font-size: 32px; margin-top: 8px; margin: 0;">Inkomst</p>
+
+<!-- Text strax under -->
+<p style="font-size: 32px; font-weight: bold; margin: 0;">@inputText kr</p> </div>
+
+<br>
+<!-- RUTA Utgifter -->
+
+<div style="width: 400px; height: 200px; background-color: lightcoral; 
+display: flex; flex-direction: column; justify-content: center; 
+align-items: center;">
+    
+    <!-- Text överst -->
+    <p style="font-size: 32px; margin-top: 8px; margin: 0;">Utgifter</p>
+
+    <!-- Text strax under -->
+    <p style="font-size: 32px; font-weight: bold; margin: 0;">@inputText kr</p> </div>
+
+<br>
+<!-- Input för inkomst -->
+<h3>Inkomst</h3>
+
+<input @bind="inputText" placeholder="Lägg till inkomst.." />
+
+<button @onclick="ShowText">Visa text</button>
+
+<p>@message</p>
+
+<p>Copyright 2025.</p>
+
+@code {
+    private string inputText = "";   // det du skriver i input
+    private string message = "";     // det som visas efter knapptryck
+
+    private void ShowText()
+    {
+        message = $"Du skrev: {inputText}";
+    }
+}
