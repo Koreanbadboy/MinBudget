@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "MinBugdet",
   "resources": {
-    "hash": "sha256-FHys4AF1jiGp67zUy0fhPigN4w3jS9iKRgafgOMlQwg=",
+    "hash": "sha256-vu5nwoX2Hg8kS4F849xq3he+IiFY7CphSjH8yJeMKHI=",
     "jsModuleNative": {
       "dotnet.native.8.0.20.u7wql8fwy6.js": "sha256-D0bzod5lwwSzPR43JC8TTCcZKw+3jIHOk8CZFCRj5is="
     },
@@ -208,10 +208,10 @@
       "mscorlib.wasm": "sha256-8qWtIcy8fV43tlcx4DxsF45RlkcfK6588vVoxF7be2E=",
       "netstandard.wasm": "sha256-eOgz2RiO4YaPLOMIGgVLNrcfsQhmLQJzR0N7Pu2teXc=",
       "System.Private.CoreLib.wasm": "sha256-F8T63QCIbMPXPQPqTcuyBAw+oVvZSrWjy88j7fiJQZ4=",
-      "MinBugdet.wasm": "sha256-sdOQ/d29dLXLLT89ha1gSeHyuft3O0X3BDDbI0TXUHE="
+      "MinBugdet.wasm": "sha256-fPr7pM95toSowkd8EgdQTN8hyvsx0KTJGOb1KOkJfE4="
     },
     "pdb": {
-      "MinBugdet.pdb": "sha256-mOzsii92aQqzcyYefd4QOwg/oFkIfcJo16uf2mPMZt4="
+      "MinBugdet.pdb": "sha256-mPUfYb69M8AMA0bLwh55t9IbtNywkULSHoTS1HFWde4="
     }
   },
   "cacheBootResources": true,

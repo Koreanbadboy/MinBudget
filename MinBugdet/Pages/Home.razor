@@ -2,64 +2,95 @@
 
 <PageTitle>Home</PageTitle>
 
-<!-- Rubrik -->
-<p style="text-align: center; font-family: Arial;font-size: 48px;">MinBudget+</p>
+<p style="text-align: center; font-family: Arial; font-size: 48px;">MinBudget+</p>
 
-<!-- Kvar denna månad box -->
+@{
+    var incomeTotal   = incomes.Sum();
+    var expenseTotal  = expenses.Sum();
+    var leftThisMonth = incomeTotal - expenseTotal;
+}
 
-<div style="width: 400px; height: 200px; background-color: lightgreen; 
-            display: flex; flex-direction: column; justify-content: center; 
-            align-items: center;">
+<!-- Kvar denna månad RUTA -->
+<div style="width: 400px; height: 200px; background-color: lightgreen;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; margin: 12px auto;">
+    <p style="font-size: 28px; margin: 0;">Kvar denna månad</p>
+    <p style="font-size: 32px; font-weight: bold; margin: 0;">@leftThisMonth kr</p>
+</div>
+
+<!-- Inkomst RUTA -->
+<div style="width: 400px; height: 200px; background-color: lightblue;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; margin: 12px auto;">
+    <p style="font-size: 28px; margin: 0;">Inkomst (summa)</p>
+    <p style="font-size: 32px; font-weight: bold; margin: 0;">@incomeTotal kr</p>
+</div>
+
+<!-- Utgifter RUTA -->
+<div style="width: 400px; height: 200px; background-color: lightcoral;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; margin: 12px auto;">
+    <p style="font-size: 28px; margin: 0;">Utgifter (summa)</p>
+    <p style="font-size: 32px; font-weight: bold; margin: 0;">@expenseTotal kr</p>
+</div>
+
+<br />
+
+<!-- Form för inkomst + knapp -->
+<div style="width: 400px; height: 100px; background-color: lightgreen;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; margin: 12px auto; gap: 8px;">
     
-    <!-- Text överst -->
-    <p style="font-size: 32px; margin-top: 8px; margin: 0;">Kvar denna månad</p>
-
-    <!-- Text strax under -->
-    <p style="font-size: 32px; font-weight: bold; margin: 0;">@inputText kr</p> </div>
-
-<br>
-<!-- Inkomst box-->
-<div style="width: 400px; height: 200px; background-color: lightblue; 
-display: flex; flex-direction: column; justify-content: center; 
-align-items: center;">
     
-<!-- Text överst -->
-<p style="font-size: 32px; margin-top: 8px; margin: 0;">Inkomst</p>
+    <form style="display: flex; flex-direction: row; gap: 6px; align-items: center;"
+          @onsubmit="AddIncome">
+        <button type="submit">➕</button>
+        <input type="text" inputmode="numeric" pattern="[0-9]*"
+               @bind="incomeInput"
+               placeholder="Lägg till inkomst..." />
+    </form>
+</div>
 
-<!-- Text strax under -->
-<p style="font-size: 32px; font-weight: bold; margin: 0;">@inputText kr</p> </div>
 
-<br>
-<!-- RUTA Utgifter -->
-
-<div style="width: 400px; height: 200px; background-color: lightcoral; 
-display: flex; flex-direction: column; justify-content: center; 
-align-items: center;">
+<!-- Form för utgifter + knapp -->
+<div style="width: 400px; height: 100px; background-color: lightcoral;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; margin: 12px auto; gap: 8px;">
     
-    <!-- Text överst -->
-    <p style="font-size: 32px; margin-top: 8px; margin: 0;">Utgifter</p>
+    
+    <form style="display: flex; flex-direction: row; gap: 6px; align-items: center;"
+          @onsubmit="AddExpense">
+        <button type="submit">➕</button>
+        <input type="text" inputmode="numeric" pattern="[0-9]*"
+               @bind="expenseInput"
+               placeholder="Lägg till utgifter..." />
+    </form>
+</div>
 
-    <!-- Text strax under -->
-    <p style="font-size: 32px; font-weight: bold; margin: 0;">@inputText kr</p> </div>
 
-<br>
-<!-- Input för inkomst -->
-<h3>Inkomst</h3>
-
-<input @bind="inputText" placeholder="Lägg till inkomst.." />
-
-<button @onclick="ShowText">Visa text</button>
-
-<p>@message</p>
-
-<p>Copyright 2025.</p>
 
 @code {
-    private string inputText = "";   // det du skriver i input
-    private string message = "";     // det som visas efter knapptryck
+    private List<decimal> incomes  = new();
+    private List<decimal> expenses = new();
 
-    private void ShowText()
+    private decimal? incomeInput;
+    private decimal? expenseInput;
+
+    private void AddIncome()
     {
-        message = $"Du skrev: {inputText}";
+        if (incomeInput is > 0)
+        {
+            incomes.Add(incomeInput.Value);
+            incomeInput = null;
+        }
+    }
+
+    private void AddExpense()
+    {
+        if (expenseInput is > 0)
+        {
+            expenses.Add(expenseInput.Value);
+            expenseInput = null;
+        }
     }
 }

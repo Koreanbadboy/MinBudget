@@ -1,0 +1,57 @@
+﻿@page "/budget"
+
+
+<PageTitle>Budget</PageTitle>
+
+<h1>Budget</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Income</th>
+        <th>Expense</th>
+    </tr>
+    </thead>
+    <tbody>
+    @for (int i = 0; i < Math.Max(incomes.Count, expenses.Count); i++)
+    {
+        <tr>
+            <td>@(i < incomes.Count ? incomes[i] : "")</td>
+            <td>@(i < expenses.Count ? expenses[i] : "")</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h3>Add Income</h3>
+<input @bind="incomeInput" placeholder="Add income..." />
+<button @onclick="AddIncome">Add</button>
+
+<h3>Add Expense</h3>
+<input @bind="expenseInput" placeholder="Add expense..." />
+<button @onclick="AddExpense">Add</button>
+
+@code {
+    private List<string> incomes = new();
+    private List<string> expenses = new();
+    private string incomeInput = "";
+    private string expenseInput = "";
+
+    private void AddIncome()
+    {
+        if (!string.IsNullOrWhiteSpace(incomeInput))
+        {
+            incomes.Add(incomeInput);
+            incomeInput = "";
+        }
+    }
+
+    private void AddExpense()
+    {
+        if (!string.IsNullOrWhiteSpace(expenseInput))
+        {
+            expenses.Add(expenseInput);
+            expenseInput = "";
+        }
+    }
+}
