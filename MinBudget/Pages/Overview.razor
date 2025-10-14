@@ -11,6 +11,8 @@ else
     <table style="width: 100%; max-width: 500px; margin-top: 12px; border-collapse: collapse;">
         <thead>
             <tr style="background: #e0f7fa;">
+                <th style="text-align: left; padding: 8px;">Kategori</th>
+                <th style="text-align: left; padding: 8px;">Notering</th>
                 <th style="text-align: right; padding: 8px;">Belopp</th>
                 <th style="padding: 8px;">Ta bort</th>
             </tr>
@@ -19,10 +21,55 @@ else
             @for (int i = 0; i < BudgetManager.Incomes.Count; i++)
             {
                 var income = BudgetManager.Incomes[i];
+                var index = i;
                 <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 8px; text-align: right;">@income.Amount kr</td>
+                    <td style="padding: 8px;">
+                        @if (editingIndexIncome == index)
+                        {
+                            <InputSelect @bind-Value="editingIncomeCategory" style="width: 100px;">
+                                @foreach (var cat in incomeCategories)
+                                {
+                                    <option value="@cat">@cat</option>
+                                }
+                            </InputSelect>
+                        }
+                        else
+                        {
+                            <span @onclick="() => EditIncomeNote(index)" style="cursor: pointer;">@income.Category</span>
+                        }
+                    </td>
+                    <td style="padding: 8px;">
+                        @if (editingIndexIncome == index)
+                        {
+                            <InputText @bind-Value="editingIncomeDescription" style="width: 100%;" />
+                        }
+                        else
+                        {
+                            <span @onclick="() => EditIncomeNote(index)" style="cursor: pointer; color: @(string.IsNullOrWhiteSpace(income.Description) ? "#aaa" : "inherit");">
+                                @(string.IsNullOrWhiteSpace(income.Description) ? "Lägg till notering" : income.Description)
+                            </span>
+                        }
+                    </td>
+                    <td style="padding: 8px; text-align: right;">
+                        @if (editingIndexIncome == index)
+                        {
+                            <InputNumber @bind-Value="editingIncomeAmount" style="width: 80px; text-align: right;" />
+                        }
+                        else
+                        {
+                            <span @onclick="() => EditIncomeNote(index)" style="cursor: pointer;">@income.Amount kr</span>
+                        }
+                    </td>
                     <td style="padding: 8px; text-align: center;">
-                        <button @onclick="async () => await RemoveIncome(i)" style="background: #ccefff; border: none; border-radius: 4px; padding: 4px 10px; cursor: pointer;">Ta bort</button>
+                        @if (editingIndexIncome == index)
+                        {
+                            <button @onclick="async () => await SaveIncomeNote(index)" style="margin-top: 4px; background: #e0f7fa; border: none; border-radius: 4px; padding: 2px 8px; cursor: pointer;">Spara</button>
+                            <button @onclick="CancelIncomeEdit" style="margin-top: 4px; margin-left: 4px; background: #eee; border: none; border-radius: 4px; padding: 2px 8px; cursor: pointer;">Avbryt</button>
+                        }
+                        else
+                        {
+                            <button @onclick="async () => await RemoveIncome(index)" style="background: #ccefff; border: none; border-radius: 4px; padding: 4px 10px; cursor: pointer;">Ta bort</button>
+                        }
                     </td>
                 </tr>
             }
@@ -41,6 +88,7 @@ else
         <thead>
             <tr style="background: #f0f0f0;">
                 <th style="text-align: left; padding: 8px;">Kategori</th>
+                <th style="text-align: left; padding: 8px;">Notering</th>
                 <th style="text-align: right; padding: 8px;">Belopp</th>
                 <th style="padding: 8px;">Ta bort</th>
             </tr>
@@ -49,11 +97,55 @@ else
             @for (int i = 0; i < BudgetManager.Expenses.Count; i++)
             {
                 var expense = BudgetManager.Expenses[i];
+                var index = i;
                 <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 8px;">@expense.Category</td>
-                    <td style="padding: 8px; text-align: right;">@expense.Amount kr</td>
+                    <td style="padding: 8px;">
+                        @if (editingIndexExpense == index)
+                        {
+                            <InputSelect @bind-Value="editingExpenseCategory" style="width: 100px;">
+                                @foreach (var cat in expenseCategories)
+                                {
+                                    <option value="@cat">@cat</option>
+                                }
+                            </InputSelect>
+                        }
+                        else
+                        {
+                            <span @onclick="() => EditExpenseNote(index)" style="cursor: pointer;">@expense.Category</span>
+                        }
+                    </td>
+                    <td style="padding: 8px;">
+                        @if (editingIndexExpense == index)
+                        {
+                            <InputText @bind-Value="editingExpenseDescription" style="width: 100%;" />
+                        }
+                        else
+                        {
+                            <span @onclick="() => EditExpenseNote(index)" style="cursor: pointer; color: @(string.IsNullOrWhiteSpace(expense.Description) ? "#aaa" : "inherit");">
+                                @(string.IsNullOrWhiteSpace(expense.Description) ? "Lägg till notering" : expense.Description)
+                            </span>
+                        }
+                    </td>
+                    <td style="padding: 8px; text-align: right;">
+                        @if (editingIndexExpense == index)
+                        {
+                            <InputNumber @bind-Value="editingExpenseAmount" style="width: 80px; text-align: right;" />
+                        }
+                        else
+                        {
+                            <span @onclick="() => EditExpenseNote(index)" style="cursor: pointer;">@expense.Amount kr</span>
+                        }
+                    </td>
                     <td style="padding: 8px; text-align: center;">
-                        <button @onclick="async () => await RemoveExpense(i)" style="background: #ffcccc; border: none; border-radius: 4px; padding: 4px 10px; cursor: pointer;">Ta bort</button>
+                        @if (editingIndexExpense == index)
+                        {
+                            <button @onclick="async () => await SaveExpenseNote(index)" style="margin-top: 4px; background: #f0f0f0; border: none; border-radius: 4px; padding: 2px 8px; cursor: pointer;">Spara</button>
+                            <button @onclick="CancelExpenseEdit" style="margin-top: 4px; margin-left: 4px; background: #eee; border: none; border-radius: 4px; padding: 2px 8px; cursor: pointer;">Avbryt</button>
+                        }
+                        else
+                        {
+                            <button @onclick="async () => await RemoveExpense(index)" style="background: #ffcccc; border: none; border-radius: 4px; padding: 4px 10px; cursor: pointer;">Ta bort</button>
+                        }
                     </td>
                 </tr>
             }
@@ -62,12 +154,28 @@ else
 }
 
 @code {
+    private int editingIndexIncome = -1;
+    private int editingIndexExpense = -1;
+    private string? editingIncomeDescription;
+    private decimal? editingIncomeAmount;
+    private string editingIncomeCategory = "Lön";
+    private string? editingExpenseDescription;
+    private decimal? editingExpenseAmount;
+    private string editingExpenseCategory = "Mat";
+    private readonly string[] incomeCategories = { "Lön", "CSN" };
+    private readonly string[] expenseCategories = { "Mat", "Hyra", "Nöje", "Transport", "Övrigt" };
+
     protected override async Task OnInitializedAsync()
     {
-        await BudgetManager.LoadAsync(); // Laddar data vid sidstart
+        await BudgetManager.LoadAsync();
     }
 
-    // Ta bort inkomst
+    protected override async Task OnParametersSetAsync()
+    {
+        await BudgetManager.LoadAsync();
+        StateHasChanged();
+    }
+
     private async Task RemoveIncome(int index)
     {
         await BudgetManager.RemoveIncomeAsync(index);
@@ -75,11 +183,58 @@ else
         StateHasChanged();
     }
 
-    // Ta bort utgift
     private async Task RemoveExpense(int index)
     {
         await BudgetManager.RemoveExpenseAsync(index);
         await BudgetManager.LoadAsync();
         StateHasChanged();
+    }
+
+    private void EditIncomeNote(int index)
+    {
+        editingIndexIncome = index;
+        var income = BudgetManager.Incomes[index];
+        editingIncomeDescription = income.Description;
+        editingIncomeAmount = income.Amount;
+        editingIncomeCategory = income.Category;
+    }
+    private async Task SaveIncomeNote(int index)
+    {
+        var income = BudgetManager.Incomes[index];
+        income.Description = editingIncomeDescription;
+        income.Amount = editingIncomeAmount ?? 0;
+        income.Category = editingIncomeCategory;
+        await BudgetManager.SaveIncomeNoteAsync(index);
+        editingIndexIncome = -1;
+        await BudgetManager.LoadAsync();
+        StateHasChanged();
+    }
+    private void CancelIncomeEdit()
+    {
+        editingIndexIncome = -1;
+    }
+
+    private void EditExpenseNote(int index)
+    {
+        editingIndexExpense = index;
+        var expense = BudgetManager.Expenses[index];
+        editingExpenseDescription = expense.Description;
+        editingExpenseAmount = expense.Amount;
+        editingExpenseCategory = expense.Category;
+    }
+    private async Task SaveExpenseNote(int index)
+    {
+        var expense = BudgetManager.Expenses[index];
+        expense.Description = editingExpenseDescription;
+        expense.Amount = editingExpenseAmount ?? 0;
+        expense.Category = editingExpenseCategory;
+        await BudgetManager.SaveExpenseNoteAsync(index);
+        editingIndexExpense = -1;
+        await BudgetManager.LoadAsync();
+        StateHasChanged();
+    }
+    private void CancelExpenseEdit()
+    {
+        editingIndexExpense = -1;
     }
 }

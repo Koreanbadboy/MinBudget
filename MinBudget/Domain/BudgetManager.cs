@@ -50,6 +50,22 @@ namespace MinBudget.Domain
             }
         }
 
+        public async Task SaveIncomeNoteAsync(int index)
+        {
+            if (index >= 0 && index < Incomes.Count)
+            {
+                await _localStorage.SaveListAsync("incomes", Incomes);
+            }
+        }
+
+        public async Task SaveExpenseNoteAsync(int index)
+        {
+            if (index >= 0 && index < Expenses.Count)
+            {
+                await _localStorage.SaveListAsync("expenses", Expenses);
+            }
+        }
+
         public decimal TotalIncome() => Incomes.Sum(i => i.Amount);
         public decimal TotalExpense() => Expenses.Sum(e => e.Amount);
         public decimal LeftThisMonth() => TotalIncome() - TotalExpense();

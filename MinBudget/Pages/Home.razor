@@ -1,29 +1,29 @@
 @page "/"
 
-@inject IJSRuntime Js
-@inject BudgetManager BudgetManager
+@inject IJSRuntime Js 
+@inject BudgetManager BudgetManager 
 
 <PageTitle>Home</PageTitle>
 
-<p style="text-align: left; font-family: Arial, sans-serif; font-size: 48px; margin-left: 12px;">MinBudget+</p> <!-- Ändring: vänsterställd rubrik -->
+<p style="text-align: left; font-family: Arial, sans-serif; font-size: 48px; margin-left: 12px;">MinBudget+</p> // Sidans rubrik
 
 @{
-    var incomeTotal   = BudgetManager.TotalIncome();
-    var expenseTotal  = BudgetManager.TotalExpense();
-    var leftThisMonth = BudgetManager.LeftThisMonth();
+    // Summeringar för visning
+    var incomeTotal   = BudgetManager.TotalIncome(); // Total inkomst
+    var expenseTotal  = BudgetManager.TotalExpense(); // Total utgift
+    var leftThisMonth = BudgetManager.LeftThisMonth(); // Kvar denna månad
 }
 
-<!-- Kvar denna månad RUTA -->
+// Kvar denna månad-ruta
 <div style="width: 400px; height: 200px; background-color: lightgreen;
             display: flex; flex-direction: column; justify-content: center;
-            align-items: center; margin: 12px 0; margin-left: 12px; border: 1px solid #b2d8b2; border-radius: 8px;"> <!-- Ångra: mildare färg och border -->
+            align-items: center; margin: 12px 0; margin-left: 12px; border: 1px solid #b2d8b2; border-radius: 8px;">
     <p style="font-size: 28px; margin: 0; color: black;">Kvar denna månad</p>
     <p style="font-size: 32px; font-weight: bold; margin: 0; color: black;">@leftThisMonth kr</p>
 </div>
 
-<!-- Inkomst och Utgift bredvid varandra -->
-<div style="display: flex; flex-direction: row; gap: 16px; margin-left: 12px;"> <!-- Ändring: flex-rad -->
-    <!-- Inkomst-box -->
+// Inkomst och utgift-boxar bredvid varandra
+<div style="display: flex; flex-direction: row; gap: 16px; margin-left: 12px;">
     <div style="width: 190px; height: 200px; background-color: lightblue;
                 display: flex; flex-direction: column; justify-content: center;
                 align-items: center; border: 1px solid #b2d8b2; border-radius: 8px;">
@@ -31,7 +31,6 @@
         <p style="font-size: 32px; font-weight: bold; margin: 0; color: black;">@incomeTotal kr</p>
     </div>
 
-    <!-- Utgift-box -->
     <div style="width: 190px; height: 200px; background-color: lightcoral;
                 display: flex; flex-direction: column; justify-content: center;
                 align-items: center; border: 1px solid #d8b2b2; border-radius: 8px;">
@@ -40,51 +39,59 @@
     </div>
 </div>
 
-<!-- Form för inkomst + knapp (box) -->
-<div style="width: 400px; background-color: #eaffea; border: 1px solid #b2d8b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;"> <!-- Ångra: mildare färg och border -->
+// Formulär för att lägga till inkomst
+<div style="width: 400px; background-color: #eaffea; border: 1px solid #b2d8b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;">
     <EditForm Model="_incomeModel" OnValidSubmit="AddIncomeAsync">
         <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
-            <button type="submit">➕</button>
-            <InputNumber @bind-Value="_incomeModel.Value" placeholder="Lägg till inkomst..." />
+            <button type="submit">➕</button> <!-- Lägg till inkomst -->
+            <InputNumber @bind-Value="_incomeModel.Value" placeholder="Lägg till inkomst..." /> <!-- Belopp -->
+            <InputSelect @bind-Value="_incomeModel.Category" style="width: 60px;"> <!-- Kategori -->
+                <option value="Lön">Lön</option>
+                <option value="CSN">CSN</option>
+            </InputSelect>
+        </div>
+        <div style="margin-top: 8px; width: 100%;">
+            <InputText @bind-Value="_incomeModel.Description" placeholder="Notering (valfritt)" style="width: 100%;" /> <!-- Notering -->
         </div>
     </EditForm>
 </div>
 
-<!-- Form för utgifter + knapp (box) -->
+// Formulär för att lägga till utgift
 <div style="width: 400px; background-color: #ffeaea; border: 1px solid #d8b2b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;">
     <EditForm Model="_expenseModel" OnValidSubmit="AddExpenseAsync">
         <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
-            <button type="submit">➕</button>
-            <InputNumber @bind-Value="_expenseModel.Value" placeholder="Lägg till utgifter..." />
-            <!-- Ändring: kategori-dropdown -->
-            <InputSelect @bind-Value="_expenseModel.Category">
+            <button type="submit">➕</button> <!-- Lägg till utgift -->
+            <InputNumber @bind-Value="_expenseModel.Value" placeholder="Lägg till utgifter..." /> <!-- Belopp -->
+            <InputSelect @bind-Value="_expenseModel.Category" style="width: 60px;"> <!-- Kategori -->
                 <option value="Mat">Mat</option>
                 <option value="Hyra">Hyra</option>
                 <option value="Nöje">Nöje</option>
                 <option value="Transport">Transport</option>
+                <option value="Övrigt">Övrigt</option>
             </InputSelect>
+        </div>
+        <div style="margin-top: 8px; width: 100%;">
+            <InputText @bind-Value="_expenseModel.Description" placeholder="Notering (valfritt)" style="width: 100%;" /> <!-- Notering -->
         </div>
     </EditForm>
 </div>
 
-<!-- Pie chart för utgiftskategorier -->
+// Pie chart för utgiftskategorier
 @if (BudgetManager.Expenses.Count > 0)
 {
     <div style="display: flex; flex-direction: row; align-items: center; margin-left: 12px; margin-top: 24px;">
-        <!-- SVG Pie Chart -->
-        <svg width="160" height="160" viewBox="0 0 32 32">
+        <svg width="160" height="160" viewBox="0 0 160 160">
             @foreach (var slice in GetPieSlices())
             {
-                <path d="@slice.Path" fill="@slice.Color" />
+                <path d="@slice.Path" fill="@slice.Color" /> <!-- Segment i cirkeldiagram -->
             }
         </svg>
-        <!-- Legend -->
         <div style="margin-left: 16px;">
             @foreach (var cat in GetCategoryPercentages())
             {
                 <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                    <span style="display: inline-block; width: 16px; height: 16px; background: @cat.Color; border-radius: 50%; margin-right: 8px;"></span>
-                    <span>@cat.Name @cat.Percent% </span>
+                    <span style="display: inline-block; width: 16px; height: 16px; background: @cat.Color; border-radius: 50%; margin-right: 8px;"></span> <!-- Färgprick -->
+                    <span>@cat.Name @cat.Percent% </span> <!-- Kategori och procent -->
                 </div>
             }
         </div>
@@ -92,43 +99,47 @@
 }
 
 @code {
-    // Input-modeller kan ligga kvar här
-    public class IncomeInputModel { public decimal? Value { get; set; } }
-    public class ExpenseInputModel { public decimal? Value { get; set; } public string Category { get; set; } = "Mat"; } // Ändring: kategori tillagd
+    // Inputmodeller för formulären
+    public class IncomeInputModel { public decimal? Value { get; set; } public string Category { get; set; } = "Lön"; public string? Description { get; set; } }
+    public class ExpenseInputModel { public decimal? Value { get; set; } public string Category { get; set; } = "Mat"; public string? Description { get; set; } }
 
-    private IncomeInputModel _incomeModel = new();
-    private ExpenseInputModel _expenseModel = new();
+    private IncomeInputModel _incomeModel = new(); // Modell för inkomstformulär
+    private ExpenseInputModel _expenseModel = new(); // Modell för utgiftsformulär
 
     protected override async Task OnInitializedAsync()
     {
-        await BudgetManager.LoadAsync();
+        await BudgetManager.LoadAsync(); // Ladda data vid sidstart
     }
 
-    // Ändring: UI-anrop, logik ligger nu i BudgetManager
+    // Lägger till inkomst
     private async Task AddIncomeAsync()
     {
         if (_incomeModel.Value is > 0)
         {
-            await BudgetManager.AddIncomeAsync(new Income { Amount = _incomeModel.Value.Value });
+            await BudgetManager.AddIncomeAsync(new Income { Amount = _incomeModel.Value.Value, Category = _incomeModel.Category, Description = _incomeModel.Description });
             _incomeModel.Value = null;
-            await BudgetManager.LoadAsync(); // laddar om data
+            _incomeModel.Category = "Lön";
+            _incomeModel.Description = null;
+            await BudgetManager.LoadAsync();
             StateHasChanged();
         }
     }
 
+    // Lägger till utgift
     private async Task AddExpenseAsync()
     {
         if (_expenseModel.Value is > 0)
         {
-            await BudgetManager.AddExpenseAsync(new Expense { Amount = _expenseModel.Value.Value, Category = _expenseModel.Category }); // Ändring: kategori skickas med
+            await BudgetManager.AddExpenseAsync(new Expense { Amount = _expenseModel.Value.Value, Category = _expenseModel.Category, Description = _expenseModel.Description });
             _expenseModel.Value = null;
-            _expenseModel.Category = "Mat"; // Återställ till standardkategori
-            await BudgetManager.LoadAsync(); // laddar om data
+            _expenseModel.Category = "Mat";
+            _expenseModel.Description = null;
+            await BudgetManager.LoadAsync();
             StateHasChanged();
         }
     }
 
-    // Ändring: UI-anrop, logik ligger nu i BudgetManager
+    // Tar bort inkomst
     private async Task RemoveIncome(int index)
     {
         await BudgetManager.RemoveIncomeAsync(index);
@@ -136,34 +147,42 @@
         StateHasChanged();
     }
 
+    // Tar bort utgift
     private async Task RemoveExpense(int index)
     {
         await BudgetManager.RemoveExpenseAsync(index);
         await BudgetManager.LoadAsync();
         StateHasChanged();
     }
-    // Kommentar: All logik för datahantering ligger nu i BudgetManager
 
-    // Pie chart helpers
-    public class PieSlice { public string? Path { get; set; } public string? Color { get; set; } } // Ändring: nullable
-    public class CategoryPercent { public string? Name { get; set; } public double Percent { get; set; } public string? Color { get; set; } } // Ändring: nullable
+    // Pie chart segment
+    public class PieSlice { public string? Path { get; set; } public string? Color { get; set; } }
+    public class CategoryPercent { public string? Name { get; set; } public double Percent { get; set; } public string? Color { get; set; } }
 
-    private readonly string[] _categoryColors = { "#a3d8f4", "#f7a072", "#f7d6e0", "#b4f8c8" };
-    private readonly string[] _categoryNames = { "Mat", "Hyra", "Nöje", "Transport" };
+    // Färger och kategorier för utgiftsdiagram
+    private readonly string[] _categoryColors = { "#a3d8f4", "#f7a072", "#f7d6e0", "#b4f8c8", "#c2b2f7" };
+    private readonly string[] _categoryNames = { "Mat", "Hyra", "Nöje", "Transport", "Övrigt" };
 
+    // Beräknar procent för varje kategori
     private List<CategoryPercent> GetCategoryPercentages()
     {
-        double total = (double)BudgetManager.Expenses.Sum(e => e.Amount); // Ändring: decimal -> double
+        double total = (double)BudgetManager.Expenses.Sum(e => e.Amount);
         var cats = new List<CategoryPercent>();
         for (int i = 0; i < _categoryNames.Length; i++)
         {
-            double sum = (double)BudgetManager.Expenses.Where(e => e.Category == _categoryNames[i]).Sum(e => e.Amount); // Ändring: decimal -> double
+            double sum = (double)BudgetManager.Expenses.Where(e => e.Category == _categoryNames[i]).Sum(e => e.Amount);
             double percent = total > 0 ? Math.Round(sum / total * 100, 1) : 0;
             cats.Add(new CategoryPercent { Name = _categoryNames[i], Percent = percent, Color = _categoryColors[i] });
+        }
+        if (total == 0)
+        {
+            cats.Clear();
+            cats.Add(new CategoryPercent { Name = "Inga utgifter", Percent = 100, Color = "#eee" });
         }
         return cats;
     }
 
+    // Skapar pie chart segment
     private List<PieSlice> GetPieSlices()
     {
         var cats = GetCategoryPercentages();
@@ -173,26 +192,24 @@
         for (int i = 0; i < cats.Count; i++)
         {
             double sweep = cats[i].Percent / 100 * 360;
-            // Sista segmentet: avsluta cirkeln exakt
             if (i == cats.Count - 1 && totalPercent > 0)
             {
                 sweep = 360 - startAngle;
             }
             if (sweep > 0)
             {
-                slices.Add(new PieSlice { Path = DescribeArc(16, 16, 16, startAngle, startAngle + sweep), Color = cats[i].Color });
+                slices.Add(new PieSlice { Path = DescribeArc(80, 80, 80, startAngle, startAngle + sweep), Color = cats[i].Color });
             }
             startAngle += sweep;
         }
-        // Om alla är 0, visa en grå cirkel
         if (slices.Count == 0)
         {
-            slices.Add(new PieSlice { Path = DescribeArc(16, 16, 16, 0, 360), Color = "#eee" });
+            slices.Add(new PieSlice { Path = DescribeArc(80, 80, 80, 0, 360), Color = "#eee" });
         }
         return slices;
     }
 
-    // SVG arc helper
+    // Hjälpmetod för SVG-arc
     private string DescribeArc(double x, double y, double radius, double startAngle, double endAngle)
     {
         double startRadians = (Math.PI / 180.0) * (startAngle - 90);
