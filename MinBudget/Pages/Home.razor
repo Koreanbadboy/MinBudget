@@ -50,54 +50,51 @@
     </EditForm>
 </div>
 
-<!-- Lista med inkomster (box) -->
-@if (BudgetManager.Incomes.Count > 0)
-{
-    <div style="width: 400px; background-color: #eaffea; border: 1px solid #b2d8b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;"> <!-- Ångra: mildare färg och border -->
-        <h4 style="text-align: center; color: black;">Inkomster</h4>
-        <ul style="width: 100%; padding-left: 0;">
-            @foreach (var item in BudgetManager.Incomes.Select((income, idx) => new { income, idx }))
-            {
-                <li style="list-style: none; display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 4px;">
-                    <span style="color: black; font-weight: bold;">@item.income.Amount kr</span>
-                    <button @onclick="async () => await RemoveIncome(item.idx)">Ta bort</button>
-                </li>
-            }
-        </ul>
-    </div>
-}
-
 <!-- Form för utgifter + knapp (box) -->
-<div style="width: 400px; background-color: #ffeaea; border: 1px solid #d8b2b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;"> <!-- Ångra: mildare färg och border -->
+<div style="width: 400px; background-color: #ffeaea; border: 1px solid #d8b2b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;">
     <EditForm Model="_expenseModel" OnValidSubmit="AddExpenseAsync">
         <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
             <button type="submit">➕</button>
             <InputNumber @bind-Value="_expenseModel.Value" placeholder="Lägg till utgifter..." />
+            <!-- Ändring: kategori-dropdown -->
+            <InputSelect @bind-Value="_expenseModel.Category">
+                <option value="Mat">Mat</option>
+                <option value="Hyra">Hyra</option>
+                <option value="Nöje">Nöje</option>
+                <option value="Transport">Transport</option>
+            </InputSelect>
         </div>
     </EditForm>
 </div>
 
-<!-- Lista med utgifter (box) -->
+<!-- Pie chart för utgiftskategorier -->
 @if (BudgetManager.Expenses.Count > 0)
 {
-    <div style="width: 400px; background-color: #ffeaea; border: 1px solid #d8b2b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;"> <!-- Ångra: mildare färg och border -->
-        <h4 style="text-align: center; color: black;">Utgifter</h4>
-        <ul style="width: 100%; padding-left: 0;">
-            @foreach (var item in BudgetManager.Expenses.Select((expense, idx) => new { expense, idx }))
+    <div style="display: flex; flex-direction: row; align-items: center; margin-left: 12px; margin-top: 24px;">
+        <!-- SVG Pie Chart -->
+        <svg width="160" height="160" viewBox="0 0 32 32">
+            @foreach (var slice in GetPieSlices())
             {
-                <li style="list-style: none; display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 4px;">
-                    <span style="color: black; font-weight: bold;">@item.expense.Amount kr</span>
-                    <button @onclick="async () => await RemoveExpense(item.idx)">Ta bort</button>
-                </li>
+                <path d="@slice.Path" fill="@slice.Color" />
             }
-        </ul>
+        </svg>
+        <!-- Legend -->
+        <div style="margin-left: 16px;">
+            @foreach (var cat in GetCategoryPercentages())
+            {
+                <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                    <span style="display: inline-block; width: 16px; height: 16px; background: @cat.Color; border-radius: 50%; margin-right: 8px;"></span>
+                    <span>@cat.Name @cat.Percent% </span>
+                </div>
+            }
+        </div>
     </div>
 }
 
 @code {
     // Input-modeller kan ligga kvar här
     public class IncomeInputModel { public decimal? Value { get; set; } }
-    public class ExpenseInputModel { public decimal? Value { get; set; } }
+    public class ExpenseInputModel { public decimal? Value { get; set; } public string Category { get; set; } = "Mat"; } // Ändring: kategori tillagd
 
     private IncomeInputModel _incomeModel = new();
     private ExpenseInputModel _expenseModel = new();
@@ -123,8 +120,9 @@
     {
         if (_expenseModel.Value is > 0)
         {
-            await BudgetManager.AddExpenseAsync(new Expense { Amount = _expenseModel.Value.Value });
+            await BudgetManager.AddExpenseAsync(new Expense { Amount = _expenseModel.Value.Value, Category = _expenseModel.Category }); // Ändring: kategori skickas med
             _expenseModel.Value = null;
+            _expenseModel.Category = "Mat"; // Återställ till standardkategori
             await BudgetManager.LoadAsync(); // laddar om data
             StateHasChanged();
         }
@@ -145,4 +143,65 @@
         StateHasChanged();
     }
     // Kommentar: All logik för datahantering ligger nu i BudgetManager
+
+    // Pie chart helpers
+    public class PieSlice { public string? Path { get; set; } public string? Color { get; set; } } // Ändring: nullable
+    public class CategoryPercent { public string? Name { get; set; } public double Percent { get; set; } public string? Color { get; set; } } // Ändring: nullable
+
+    private readonly string[] _categoryColors = { "#a3d8f4", "#f7a072", "#f7d6e0", "#b4f8c8" };
+    private readonly string[] _categoryNames = { "Mat", "Hyra", "Nöje", "Transport" };
+
+    private List<CategoryPercent> GetCategoryPercentages()
+    {
+        double total = (double)BudgetManager.Expenses.Sum(e => e.Amount); // Ändring: decimal -> double
+        var cats = new List<CategoryPercent>();
+        for (int i = 0; i < _categoryNames.Length; i++)
+        {
+            double sum = (double)BudgetManager.Expenses.Where(e => e.Category == _categoryNames[i]).Sum(e => e.Amount); // Ändring: decimal -> double
+            double percent = total > 0 ? Math.Round(sum / total * 100, 1) : 0;
+            cats.Add(new CategoryPercent { Name = _categoryNames[i], Percent = percent, Color = _categoryColors[i] });
+        }
+        return cats;
+    }
+
+    private List<PieSlice> GetPieSlices()
+    {
+        var cats = GetCategoryPercentages();
+        var slices = new List<PieSlice>();
+        double startAngle = 0;
+        double totalPercent = cats.Sum(c => c.Percent);
+        for (int i = 0; i < cats.Count; i++)
+        {
+            double sweep = cats[i].Percent / 100 * 360;
+            // Sista segmentet: avsluta cirkeln exakt
+            if (i == cats.Count - 1 && totalPercent > 0)
+            {
+                sweep = 360 - startAngle;
+            }
+            if (sweep > 0)
+            {
+                slices.Add(new PieSlice { Path = DescribeArc(16, 16, 16, startAngle, startAngle + sweep), Color = cats[i].Color });
+            }
+            startAngle += sweep;
+        }
+        // Om alla är 0, visa en grå cirkel
+        if (slices.Count == 0)
+        {
+            slices.Add(new PieSlice { Path = DescribeArc(16, 16, 16, 0, 360), Color = "#eee" });
+        }
+        return slices;
+    }
+
+    // SVG arc helper
+    private string DescribeArc(double x, double y, double radius, double startAngle, double endAngle)
+    {
+        double startRadians = (Math.PI / 180.0) * (startAngle - 90);
+        double endRadians = (Math.PI / 180.0) * (endAngle - 90);
+        double x1 = x + radius * Math.Cos(startRadians);
+        double y1 = y + radius * Math.Sin(startRadians);
+        double x2 = x + radius * Math.Cos(endRadians);
+        double y2 = y + radius * Math.Sin(endRadians);
+        bool largeArc = endAngle - startAngle > 180;
+        return $"M{x} {y} L{x1} {y1} A{radius} {radius} 0 {(largeArc ? 1 : 0)} 1 {x2} {y2} Z";
+    }
 }
