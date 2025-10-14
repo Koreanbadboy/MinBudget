@@ -1,7 +1,151 @@
-﻿@page "/"
+@page "/"
+
+@inject IJSRuntime Js
+@inject BudgetManager BudgetManager
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<p style="text-align: center; font-family: Arial, sans-serif; font-size: 48px;">MinBudget+</p>
 
-Welcome to your new app.
+@{
+    var incomeTotal   = BudgetManager.TotalIncome();
+    var expenseTotal  = BudgetManager.TotalExpense();
+    var leftThisMonth = BudgetManager.LeftThisMonth();
+}
+
+<!-- Kvar denna månad RUTA -->
+<div style="width: 400px; height: 200px; background-color: lightgreen;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; margin: 12px auto;">
+    <p style="font-size: 28px; margin: 0;">Kvar denna månad</p>
+    <p style="font-size: 32px; font-weight: bold; margin: 0;">@leftThisMonth kr</p>
+</div>
+
+<!-- Inkomst RUTA -->
+<div style="width: 400px; height: 200px; background-color: lightblue;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; margin: 12px auto;">
+    <p style="font-size: 28px; margin: 0;">Inkomst (summa)</p>
+    <p style="font-size: 32px; font-weight: bold; margin: 0;">@incomeTotal kr</p>
+</div>
+
+<!-- Utgifter RUTA -->
+<div style="width: 400px; height: 200px; background-color: lightcoral;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; margin: 12px auto;">
+    <p style="font-size: 28px; margin: 0;">Utgifter (summa)</p>
+    <p style="font-size: 32px; font-weight: bold; margin: 0;">@expenseTotal kr</p>
+</div>
+
+<br />
+
+<!-- Form för inkomst + knapp -->
+<div style="width: 400px; height: 100px; background-color: lightgreen;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; margin: 12px auto; gap: 8px;">
+    <EditForm Model="_incomeModel" OnValidSubmit="AddIncomeAsync"> <!-- Ändring: använder Model -->
+        <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
+            <button type="submit">➕</button>
+            <InputNumber @bind-Value="_incomeModel.Value" placeholder="Lägg till inkomst..." /> <!-- Ändring: binder till model -->
+        </div>
+    </EditForm> <!-- Ändring: använder EditForm och InputNumber för korrekt Blazor-formulär -->
+</div>
+
+<!-- Lista med inkomster -->
+@if (BudgetManager.Incomes.Count > 0)
+{
+    <div style="width: 400px; margin: 0 auto;">
+        <h4>Inkomster</h4>
+        <ul>
+            @foreach (var item in BudgetManager.Incomes.Select((income, idx) => new { income, idx }))
+            {
+                <li>
+                    @item.income.Amount kr
+                    <button @onclick="async () => await RemoveIncome(item.idx)">Ta bort</button>
+                </li>
+            }
+        </ul>
+    </div>
+}
+
+<!-- Form för utgifter + knapp -->
+<div style="width: 400px; height: 100px; background-color: lightcoral;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; margin: 12px auto; gap: 8px;">
+    <EditForm Model="_expenseModel" OnValidSubmit="AddExpenseAsync"> <!-- Ändring: använder Model -->
+        <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
+            <button type="submit">➕</button>
+            <InputNumber @bind-Value="_expenseModel.Value" placeholder="Lägg till utgifter..." /> <!-- Ändring: binder till model -->
+        </div>
+    </EditForm> <!-- Ändring: använder EditForm och InputNumber för korrekt Blazor-formulär -->
+</div>
+
+<!-- Lista med utgifter -->
+@if (BudgetManager.Expenses.Count > 0)
+{
+    <div style="width: 400px; margin: 0 auto;">
+        <h4>Utgifter</h4>
+        <ul>
+            @foreach (var item in BudgetManager.Expenses.Select((expense, idx) => new { expense, idx }))
+            {
+                <li>
+                    @item.expense.Amount kr
+                    <button @onclick="async () => await RemoveExpense(item.idx)">Ta bort</button>
+                </li>
+            }
+        </ul>
+    </div>
+}
+
+@code {
+    // Input-modeller kan ligga kvar här
+    public class IncomeInputModel { public decimal? Value { get; set; } }
+    public class ExpenseInputModel { public decimal? Value { get; set; } }
+
+    private IncomeInputModel _incomeModel = new();
+    private ExpenseInputModel _expenseModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await BudgetManager.LoadAsync();
+    }
+
+    // Ändring: UI-anrop, logik ligger nu i BudgetManager
+    private async Task AddIncomeAsync()
+    {
+        if (_incomeModel.Value is > 0)
+        {
+            await BudgetManager.AddIncomeAsync(new Income { Amount = _incomeModel.Value.Value });
+            _incomeModel.Value = null;
+            await BudgetManager.LoadAsync(); // laddar om data
+            StateHasChanged();
+        }
+    }
+
+    private async Task AddExpenseAsync()
+    {
+        if (_expenseModel.Value is > 0)
+        {
+            await BudgetManager.AddExpenseAsync(new Expense { Amount = _expenseModel.Value.Value });
+            _expenseModel.Value = null;
+            await BudgetManager.LoadAsync(); // laddar om data
+            StateHasChanged();
+        }
+    }
+
+    // Ändring: UI-anrop, logik ligger nu i BudgetManager
+    private async Task RemoveIncome(int index)
+    {
+        await BudgetManager.RemoveIncomeAsync(index);
+        await BudgetManager.LoadAsync();
+        StateHasChanged();
+    }
+
+    private async Task RemoveExpense(int index)
+    {
+        await BudgetManager.RemoveExpenseAsync(index);
+        await BudgetManager.LoadAsync();
+        StateHasChanged();
+    }
+    // Kommentar: All logik för datahantering ligger nu i BudgetManager
+}
