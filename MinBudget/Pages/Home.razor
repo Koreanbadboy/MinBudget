@@ -5,7 +5,7 @@
 
 <PageTitle>Home</PageTitle>
 
-<p style="text-align: center; font-family: Arial, sans-serif; font-size: 48px;">MinBudget+</p>
+<p style="text-align: left; font-family: Arial, sans-serif; font-size: 48px; margin-left: 12px;">MinBudget+</p> <!-- Ändring: vänsterställd rubrik -->
 
 @{
     var incomeTotal   = BudgetManager.TotalIncome();
@@ -16,51 +16,50 @@
 <!-- Kvar denna månad RUTA -->
 <div style="width: 400px; height: 200px; background-color: lightgreen;
             display: flex; flex-direction: column; justify-content: center;
-            align-items: center; margin: 12px auto;">
-    <p style="font-size: 28px; margin: 0;">Kvar denna månad</p>
-    <p style="font-size: 32px; font-weight: bold; margin: 0;">@leftThisMonth kr</p>
+            align-items: center; margin: 12px 0; margin-left: 12px; border: 1px solid #b2d8b2; border-radius: 8px;"> <!-- Ångra: mildare färg och border -->
+    <p style="font-size: 28px; margin: 0; color: black;">Kvar denna månad</p>
+    <p style="font-size: 32px; font-weight: bold; margin: 0; color: black;">@leftThisMonth kr</p>
 </div>
 
-<!-- Inkomst RUTA -->
-<div style="width: 400px; height: 200px; background-color: lightblue;
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; margin: 12px auto;">
-    <p style="font-size: 28px; margin: 0;">Inkomst (summa)</p>
-    <p style="font-size: 32px; font-weight: bold; margin: 0;">@incomeTotal kr</p>
+<!-- Inkomst och Utgift bredvid varandra -->
+<div style="display: flex; flex-direction: row; gap: 16px; margin-left: 12px;"> <!-- Ändring: flex-rad -->
+    <!-- Inkomst-box -->
+    <div style="width: 190px; height: 200px; background-color: lightblue;
+                display: flex; flex-direction: column; justify-content: center;
+                align-items: center; border: 1px solid #b2d8b2; border-radius: 8px;">
+        <p style="font-size: 28px; margin: 0; color: black;">Inkomst</p>
+        <p style="font-size: 32px; font-weight: bold; margin: 0; color: black;">@incomeTotal kr</p>
+    </div>
+
+    <!-- Utgift-box -->
+    <div style="width: 190px; height: 200px; background-color: lightcoral;
+                display: flex; flex-direction: column; justify-content: center;
+                align-items: center; border: 1px solid #d8b2b2; border-radius: 8px;">
+        <p style="font-size: 28px; margin: 0; color: black;">Utgifter</p>
+        <p style="font-size: 32px; font-weight: bold; margin: 0; color: black;">@expenseTotal kr</p>
+    </div>
 </div>
 
-<!-- Utgifter RUTA -->
-<div style="width: 400px; height: 200px; background-color: lightcoral;
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; margin: 12px auto;">
-    <p style="font-size: 28px; margin: 0;">Utgifter (summa)</p>
-    <p style="font-size: 32px; font-weight: bold; margin: 0;">@expenseTotal kr</p>
-</div>
-
-<br />
-
-<!-- Form för inkomst + knapp -->
-<div style="width: 400px; height: 100px; background-color: lightgreen;
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; margin: 12px auto; gap: 8px;">
-    <EditForm Model="_incomeModel" OnValidSubmit="AddIncomeAsync"> <!-- Ändring: använder Model -->
+<!-- Form för inkomst + knapp (box) -->
+<div style="width: 400px; background-color: #eaffea; border: 1px solid #b2d8b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;"> <!-- Ångra: mildare färg och border -->
+    <EditForm Model="_incomeModel" OnValidSubmit="AddIncomeAsync">
         <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
             <button type="submit">➕</button>
-            <InputNumber @bind-Value="_incomeModel.Value" placeholder="Lägg till inkomst..." /> <!-- Ändring: binder till model -->
+            <InputNumber @bind-Value="_incomeModel.Value" placeholder="Lägg till inkomst..." />
         </div>
-    </EditForm> <!-- Ändring: använder EditForm och InputNumber för korrekt Blazor-formulär -->
+    </EditForm>
 </div>
 
-<!-- Lista med inkomster -->
+<!-- Lista med inkomster (box) -->
 @if (BudgetManager.Incomes.Count > 0)
 {
-    <div style="width: 400px; margin: 0 auto;">
-        <h4>Inkomster</h4>
-        <ul>
+    <div style="width: 400px; background-color: #eaffea; border: 1px solid #b2d8b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;"> <!-- Ångra: mildare färg och border -->
+        <h4 style="text-align: center; color: black;">Inkomster</h4>
+        <ul style="width: 100%; padding-left: 0;">
             @foreach (var item in BudgetManager.Incomes.Select((income, idx) => new { income, idx }))
             {
-                <li>
-                    @item.income.Amount kr
+                <li style="list-style: none; display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 4px;">
+                    <span style="color: black; font-weight: bold;">@item.income.Amount kr</span>
                     <button @onclick="async () => await RemoveIncome(item.idx)">Ta bort</button>
                 </li>
             }
@@ -68,28 +67,26 @@
     </div>
 }
 
-<!-- Form för utgifter + knapp -->
-<div style="width: 400px; height: 100px; background-color: lightcoral;
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; margin: 12px auto; gap: 8px;">
-    <EditForm Model="_expenseModel" OnValidSubmit="AddExpenseAsync"> <!-- Ändring: använder Model -->
+<!-- Form för utgifter + knapp (box) -->
+<div style="width: 400px; background-color: #ffeaea; border: 1px solid #d8b2b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;"> <!-- Ångra: mildare färg och border -->
+    <EditForm Model="_expenseModel" OnValidSubmit="AddExpenseAsync">
         <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
             <button type="submit">➕</button>
-            <InputNumber @bind-Value="_expenseModel.Value" placeholder="Lägg till utgifter..." /> <!-- Ändring: binder till model -->
+            <InputNumber @bind-Value="_expenseModel.Value" placeholder="Lägg till utgifter..." />
         </div>
-    </EditForm> <!-- Ändring: använder EditForm och InputNumber för korrekt Blazor-formulär -->
+    </EditForm>
 </div>
 
-<!-- Lista med utgifter -->
+<!-- Lista med utgifter (box) -->
 @if (BudgetManager.Expenses.Count > 0)
 {
-    <div style="width: 400px; margin: 0 auto;">
-        <h4>Utgifter</h4>
-        <ul>
+    <div style="width: 400px; background-color: #ffeaea; border: 1px solid #d8b2b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;"> <!-- Ångra: mildare färg och border -->
+        <h4 style="text-align: center; color: black;">Utgifter</h4>
+        <ul style="width: 100%; padding-left: 0;">
             @foreach (var item in BudgetManager.Expenses.Select((expense, idx) => new { expense, idx }))
             {
-                <li>
-                    @item.expense.Amount kr
+                <li style="list-style: none; display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 4px;">
+                    <span style="color: black; font-weight: bold;">@item.expense.Amount kr</span>
                     <button @onclick="async () => await RemoveExpense(item.idx)">Ta bort</button>
                 </li>
             }
