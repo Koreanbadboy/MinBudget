@@ -5,7 +5,7 @@
 
 <PageTitle>Home</PageTitle>
 
-<p style="text-align: left; font-family: Arial, sans-serif; font-size: 48px; margin-left: 12px;">MinBudget+</p> // Sidans rubrik
+<p style="text-align: left; font-family: Arial, sans-serif; font-size: 48px; margin-left: 12px;">MinBudget+</p>
 
 @{
     // Summeringar för visning
@@ -14,7 +14,7 @@
     var leftThisMonth = BudgetManager.LeftThisMonth(); // Kvar denna månad
 }
 
-// Kvar denna månad-ruta
+<!-- Kvar denna månad-ruta -->
 <div style="width: 400px; height: 200px; background-color: lightgreen;
             display: flex; flex-direction: column; justify-content: center;
             align-items: center; margin: 12px 0; margin-left: 12px; border: 1px solid #b2d8b2; border-radius: 8px;">
@@ -22,7 +22,7 @@
     <p style="font-size: 32px; font-weight: bold; margin: 0; color: black;">@leftThisMonth kr</p>
 </div>
 
-// Inkomst och utgift-boxar bredvid varandra
+<!-- Inkomst och utgift-boxar bredvid varandra -->
 <div style="display: flex; flex-direction: row; gap: 16px; margin-left: 12px;">
     <div style="width: 190px; height: 200px; background-color: lightblue;
                 display: flex; flex-direction: column; justify-content: center;
@@ -39,44 +39,60 @@
     </div>
 </div>
 
-// Formulär för att lägga till inkomst
-<div style="width: 400px; background-color: #eaffea; border: 1px solid #b2d8b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;">
-    <EditForm Model="_incomeModel" OnValidSubmit="AddIncomeAsync">
-        <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
-            <button type="submit">➕</button> <!-- Lägg till inkomst -->
-            <InputNumber @bind-Value="_incomeModel.Value" placeholder="Lägg till inkomst..." /> <!-- Belopp -->
-            <InputSelect @bind-Value="_incomeModel.Category" style="width: 60px;"> <!-- Kategori -->
-                <option value="Lön">Lön</option>
-                <option value="CSN">CSN</option>
-            </InputSelect>
-        </div>
-        <div style="margin-top: 8px; width: 100%;">
-            <InputText @bind-Value="_incomeModel.Description" placeholder="Notering (valfritt)" style="width: 100%;" /> <!-- Notering -->
-        </div>
-    </EditForm>
-</div>
+<!-- Knappar och formulär för inkomst -->
+@if (!showIncomeForm)
+{
+    <button style="width: 400px; height: 48px; background-color: #b2d8b2; color: black; font-size: 24px; border-radius: 8px; border: 1px solid #b2d8b2; margin-left: 12px; margin-bottom: 12px; margin-top: 22px;" @onclick="() => showIncomeForm = true">+ Lägg till inkomst</button>
+}
+else
+{
+    <div style="width: 400px; background-color: #eaffea; border: 1px solid #b2d8b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center; margin-top: 24px;">
+        <EditForm Model="_incomeModel" OnValidSubmit="AddIncomeAsync">
+            <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
+                <button type="submit">➕</button>
+                <InputNumber @bind-Value="_incomeModel.Value" placeholder="Lägg till inkomst..." />
+                <InputSelect @bind-Value="_incomeModel.Category" style="width: 60px;">
+                    <option value="Lön">Lön</option>
+                    <option value="CSN">CSN</option>
+                </InputSelect>
+            </div>
+            <div style="margin-top: 8px; width: 100%;">
+                <InputText @bind-Value="_incomeModel.Description" placeholder="Notering (valfritt)" style="width: 100%;" />
+            </div>
+        </EditForm>
+        <button style="margin-top: 8px;" @onclick="() => showIncomeForm = false">Avbryt</button>
+    </div>
+}
 
-// Formulär för att lägga till utgift
-<div style="width: 400px; background-color: #ffeaea; border: 1px solid #d8b2b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center;">
-    <EditForm Model="_expenseModel" OnValidSubmit="AddExpenseAsync">
-        <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
-            <button type="submit">➕</button> <!-- Lägg till utgift -->
-            <InputNumber @bind-Value="_expenseModel.Value" placeholder="Lägg till utgifter..." /> <!-- Belopp -->
-            <InputSelect @bind-Value="_expenseModel.Category" style="width: 60px;"> <!-- Kategori -->
-                <option value="Mat">Mat</option>
-                <option value="Hyra">Hyra</option>
-                <option value="Nöje">Nöje</option>
-                <option value="Transport">Transport</option>
-                <option value="Övrigt">Övrigt</option>
-            </InputSelect>
-        </div>
-        <div style="margin-top: 8px; width: 100%;">
-            <InputText @bind-Value="_expenseModel.Description" placeholder="Notering (valfritt)" style="width: 100%;" /> <!-- Notering -->
-        </div>
-    </EditForm>
-</div>
+<!-- Knappar och formulär för utgift -->
+@if (!showExpenseForm)
+{
+    <button style="width: 400px; height: 48px; background-color: #d8b2b2; color: black; font-size: 24px; border-radius: 8px; border: 1px solid #d8b2b2; margin-left: 12px; margin-bottom: 12px; margin-top: 10px;" @onclick="() => showExpenseForm = true">− Lägg till utgift</button>
+}
+else
+{
+    <div style="width: 400px; background-color: #ffeaea; border: 1px solid #d8b2b2; border-radius: 8px; padding: 16px; margin: 12px 0; margin-left: 12px; display: flex; flex-direction: column; align-items: center; margin-top: 12px;">
+        <EditForm Model="_expenseModel" OnValidSubmit="AddExpenseAsync">
+            <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
+                <button type="submit">➕</button>
+                <InputNumber @bind-Value="_expenseModel.Value" placeholder="Lägg till utgifter..." />
+                <InputSelect @bind-Value="_expenseModel.Category" style="width: 60px;">
+                    <option value="Mat">Mat</option>
+                    <option value="Hyra">Hyra</option>
+                    <option value="Nöje">Nöje</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Övrigt">Övrigt</option>
+                </InputSelect>
+            </div>
+            <div style="margin-top: 8px; width: 100%;">
+                <InputText @bind-Value="_expenseModel.Description" placeholder="Notering (valfritt)" style="width: 100%;" />
+            </div>
+        </EditForm>
+        <button style="margin-top: 8px;" @onclick="() => showExpenseForm = false">Avbryt</button>
+    </div>
+}
 
-// Pie chart för utgiftskategorier
+<!-- Pie chart för utgiftskategorier -->
 @if (BudgetManager.Expenses.Count > 0)
 {
     <div style="display: flex; flex-direction: row; align-items: center; margin-left: 12px; margin-top: 24px;">
@@ -99,6 +115,8 @@
 }
 
 @code {
+    private bool showIncomeForm = false;
+    private bool showExpenseForm = false;
     // Inputmodeller för formulären
     public class IncomeInputModel { public decimal? Value { get; set; } public string Category { get; set; } = "Lön"; public string? Description { get; set; } }
     public class ExpenseInputModel { public decimal? Value { get; set; } public string Category { get; set; } = "Mat"; public string? Description { get; set; } }
