@@ -174,9 +174,9 @@
     private IncomeInputModel _incomeModel = new();
     private ExpenseInputModel _expenseModel = new();
 
-    // Variabler för att hålla den valda månaden och året
-    private int selectedMonth = DateTime.Now.Month;
-    private int selectedYear = DateTime.Now.Year;
+    // Lokala variabler för att hålla den valda månaden och året
+    private int selectedMonth;
+    private int selectedYear;
     
     // En array av månader för rullgardinsmenyn
     private readonly (int Value, string Name)[] months = new[] {
@@ -189,7 +189,10 @@
     // Metod som körs när komponenten först initieras
     protected override async Task OnInitializedAsync()
     {
-        // Laddar budgetdata för den nuvarande månaden och året
+        // Sätt den initiala perioden från BudgetManager
+        selectedYear = BudgetManager.SelectedYear;
+        selectedMonth = BudgetManager.SelectedMonth;
+        // Laddar budgetdata för den period som är sparad i BudgetManager
         await BudgetManager.LoadAsync(selectedYear, selectedMonth);
     }
 

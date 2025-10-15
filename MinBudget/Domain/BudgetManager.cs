@@ -17,6 +17,10 @@ namespace MinBudget.Domain
         // En offentlig lista över utgifter.
         public List<Expense> Expenses { get; private set; } = new();
         
+        // Offentliga egenskaper för att hålla det valda året och månaden.
+        public int SelectedYear { get; private set; }
+        public int SelectedMonth { get; private set; }
+
         // Privata fält för att hålla det valda året och månaden. Startvärdena är nuvarande år och månad.
         private int _year = DateTime.Now.Year;
         private int _month = DateTime.Now.Month;
@@ -30,6 +34,11 @@ namespace MinBudget.Domain
         public BudgetManager(LocalStorageService localStorage)
         {
             _localStorage = localStorage;
+            // Sätt den initiala perioden till den aktuella månaden och året
+            SelectedYear = DateTime.Now.Year;
+            SelectedMonth = DateTime.Now.Month;
+            _year = SelectedYear;
+            _month = SelectedMonth;
         }
 
         // Asynkron metod för att ladda inkomster och utgifter från local storage baserat på nuvarande _year och _month.
@@ -47,6 +56,8 @@ namespace MinBudget.Domain
         // Överlagrad version av LoadAsync som först sätter år och månad innan den laddar datan.
         public async Task LoadAsync(int year, int month)
         {
+            SelectedYear = year;
+            SelectedMonth = month;
             _year = year;
             _month = month;
             await LoadAsync();
@@ -114,5 +125,36 @@ namespace MinBudget.Domain
         
         // Metod som beräknar och returnerar skillnaden mellan totala inkomster och utgifter.
         public decimal LeftThisMonth() => TotalIncome() - TotalExpense();
+
+        /// <summary>
+        /// Hämtar förslag på inkomster och utgifter från föregående månad som inte redan finns i den aktuella månaden.
+        /// </summary>
+        /// <returns>En tupel med listor över föreslagna inkomster och utgifter.</returns>
+        public async Task<(List<Income> Incomes, List<Expense> Expenses)> GetPreviousMonthSuggestionsAsync()
+        {
+            // Beräkna föregående månad och år
+            var previousMonthDate = new DateTime(SelectedYear, SelectedMonth, 1).AddMonths(-1);
+            var prevYear = previousMonthDate.Year;
+            var prevMonth = previousMonthDate.Month;
+
+            // Skapa nycklar för föregående månads data
+            var prevIncomeKey = $"incomes-{prevYear}-{prevMonth:D2}";
+            var prevExpenseKey = $"expenses-{prevYear}-{prevMonth:D2}";
+
+            // Hämta data från föregående månad
+            var prevIncomes = await _localStorage.ReadListAsync<Income>(prevIncomeKey);
+            var prevExpenses = await _localStorage.ReadListAsync<Expense>(prevExpenseKey);
+
+            // Filtrera bort förslag som redan finns i den aktuella månaden (baserat på kategori, belopp och notering)
+            var suggestedIncomes = prevIncomes
+                .Where(pi => !Incomes.Any(ci => ci.Category == pi.Category && ci.Amount == pi.Amount && ci.Description == pi.Description))
+                .ToList();
+
+            var suggestedExpenses = prevExpenses
+                .Where(pe => !Expenses.Any(ce => ce.Category == pe.Category && ce.Amount == pe.Amount && ce.Description == pe.Description))
+                .ToList();
+
+            return (suggestedIncomes, suggestedExpenses);
+        }
     }
 }
